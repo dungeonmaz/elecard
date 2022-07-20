@@ -3,10 +3,9 @@ import { AppBar, Toolbar, Pagination, FormControl, Radio, RadioGroup, FormContro
 import Cards from './Cards'
 import { useState } from 'react'
 
-const CardsView = ({ matches, loading, data, setData, handleRestoreClick }) => {
+const CardsView = ({ matches, loading, data, setData, handleRestoreClick, setSortType, sortType }) => {
     const [currentPage, setCurrentPage] = useState(1)
     const [cardsPerPage, setCardsPerPage] = useState(20)
-    const [sortType, setSortType] = useState('none')
     const [anchorEl, setAnchorEl] = useState(null);
 
     const indexOfLastCard = currentPage * cardsPerPage

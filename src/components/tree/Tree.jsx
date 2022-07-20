@@ -2,7 +2,8 @@ import { TreeView, TreeItem } from '@mui/lab'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import React from 'react'
-import { Modal, Box, Typography } from '@mui/material';
+import { Modal, Box, Button, AppBar, Toolbar } from '@mui/material';
+import { useState } from 'react';
 
 const ConvertTime = (time) => {
     let date = new Intl.DateTimeFormat('en-US', {
@@ -19,8 +20,11 @@ const formatedData = {
     ]
 }
 
+let ids = ['root']
+
 const formatData = (l_data) => {
     formatedData.children = []
+    ids = ['root']
     l_data.forEach((el) => {
         if (formatedData.children.find(x => x.id === el.category) === undefined) {
             formatedData.children.push({
@@ -28,6 +32,7 @@ const formatData = (l_data) => {
                 name: el.category,
                 children: [],
             })
+            ids.push(el.category)
         }
         let j = formatedData.children.find(x => x.id === el.category)
         j.children.push({
@@ -35,6 +40,7 @@ const formatData = (l_data) => {
             name: el.name.charAt(0).toUpperCase() + el.name.slice(1),
             properties: { size: el.filesize, time: el.timestamp, image: el.image },
         })
+        ids.push(el.image)
     })
 }
 
@@ -47,8 +53,10 @@ const style = {
 
 
 const Tree = ({ data, loading }) => {
-    const [open, setOpen] = React.useState(false);
-    const [imageUrl, setImageUrl] = React.useState('')
+    const [open, setOpen] = useState(false);
+    const [imageUrl, setImageUrl] = useState('')
+    const [expanded, setExpanded] = useState([])
+
     const handleOpen = (url) => {
         setOpen(true)
         setImageUrl(url)
@@ -58,13 +66,23 @@ const Tree = ({ data, loading }) => {
         return <h2>Loading...</h2>
     }
 
+    const handleExpandClick = () => {
+        setExpanded((oldExpanded) =>
+            oldExpanded.length === 0 ? ids : [],
+        );
+    };
+
+    const handleToggle = (event, nodeIds) => {
+        setExpanded(nodeIds);
+    };
+
     const renderTree = (nodes) => (
         <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
             {Array.isArray(nodes.children)
                 ? nodes.children.map((node) => (renderTree(node)))
                 : null}
             {nodes.properties ? <div>
-                <div>Image : <img src={`http://contest.elecard.ru/frontend_data/${nodes.properties.image}`} alt="" width="96px" style={{ display: 'flex' }} onClick={() => {handleOpen(`http://contest.elecard.ru/frontend_data/${nodes.properties.image}`)}} /></div>
+                <div>Image : <img src={`http://contest.elecard.ru/frontend_data/${nodes.properties.image}`} alt="" width="96px" style={{ display: 'flex' }} onClick={() => { handleOpen(`http://contest.elecard.ru/frontend_data/${nodes.properties.image}`) }} /></div>
                 <div>Size : {nodes.properties.size}</div>
                 <div>Time : {ConvertTime(nodes.properties.time)}</div>
             </div> : null}
@@ -75,7 +93,16 @@ const Tree = ({ data, loading }) => {
 
     return (
         <div>
-            <TreeView defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} sx={{ height: 768, flexGrow: 1, maxWidth: 1360, overflowY: 'auto', margin: '0 auto' }}>
+            <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
+                <Toolbar style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box>
+                        <Button variant="contained" color='secondary' onClick={handleExpandClick}>
+                            {expanded.length === 0 ? 'Expand all' : 'Collapse all'}
+                        </Button>
+                    </Box>
+                </Toolbar>
+            </AppBar>
+            <TreeView expanded={expanded} onNodeToggle={handleToggle} defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} sx={{width:'1360px', margin: '0 auto', paddingBottom:'80px' }}>
                 {renderTree(formatedData)}
             </TreeView>
             <Modal
