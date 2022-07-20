@@ -52,7 +52,7 @@ const style = {
 };
 
 
-const Tree = ({ data, loading }) => {
+const Tree = ({ data, loading, matches }) => {
     const [open, setOpen] = useState(false);
     const [imageUrl, setImageUrl] = useState('')
     const [expanded, setExpanded] = useState([])
@@ -102,7 +102,7 @@ const Tree = ({ data, loading }) => {
                     </Box>
                 </Toolbar>
             </AppBar>
-            <TreeView expanded={expanded} onNodeToggle={handleToggle} defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} sx={{width:'1360px', margin: '0 auto', paddingBottom:'80px' }}>
+            <TreeView expanded={expanded} onNodeToggle={handleToggle} defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} sx={{width:matches ?'1360px' : '300px', margin: '0 auto', paddingBottom:'80px' }}>
                 {renderTree(formatedData)}
             </TreeView>
             <Modal
